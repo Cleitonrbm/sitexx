@@ -1,138 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MeuTube Final</title>
-<style>
-body { font-family: Arial; background:#111; color:white; margin:0; }
-header { background:#202020; padding:15px; text-align:center; font-size:24px; }
-.gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:15px; padding:20px; }
-.video { background:#181818; border-radius:10px; padding:10px; position:relative; box-shadow:0 0 10px rgba(0,0,0,0.3);}
-iframe,img { width:100%; border-radius:10px; }
-.title { margin:5px 0; font-weight:bold; text-align:center; }
-.category { font-size:12px; text-align:center; color:#aaa; }
-.admin-panel { display:none; padding:20px; background:#111; border-top:2px solid #333; }
-input,button,select { margin:5px; padding:10px; border:none; border-radius:5px; }
-button { background:#ff0000; color:white; cursor:pointer; }
-button:hover { background:#cc0000; }
-.remove-btn { position:absolute; top:5px; right:5px; background:#ff0000; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; }
-.remove-btn:hover { background:#cc0000; }
-.close-btn { background:#444; color:white; border:none; padding:10px 20px; border-radius:5px; margin-top:10px; cursor:pointer; }
-.close-btn:hover { background:#666; }
-</style>
-</head>
-<body>
-
-<header>🔥 MeuTube Final 🔥</header>
-
-<div class="gallery" id="gallery"></div>
-
-<div class="admin-panel" id="adminPanel">
-<h2>Painel Admin</h2>
-<input type="text" id="mediaTitle" placeholder="Título">
-<input type="text" id="mediaCategory" placeholder="Categoria">
-<input type="text" id="mediaUrl" placeholder="URL do vídeo ou imagem">
-<select id="mediaType">
-  <option value="video">Vídeo</option>
-  <option value="image">Imagem</option>
-</select>
-<button onclick="addMedia()">Adicionar</button>
-<br>
-<button class="close-btn" onclick="closeAdminPanel()">Fechar painel</button>
-</div>
-
-<script>
-const adminPassword = "1234"; // TROQUE AQUI PELA SUA SENHA
-let mediaList = [];
-
-// Renderiza galeria
-function renderGallery(){
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML = "";
-  mediaList.forEach((item,index)=>{
-    const div=document.createElement("div");
-    div.className="video";
-
-    // Botão remover
-    const removeBtn=document.createElement("button");
-    removeBtn.className="remove-btn";
-    removeBtn.textContent="X";
-    removeBtn.onclick=()=>removeMedia(index);
-    div.appendChild(removeBtn);
-
-    // Conteúdo
-    if(item.type==="video"){
-      const videoId = item.url.includes("youtube.com") ? item.url.split("v=")[1]?.split("&")[0] : item.url.split("/").pop();
-      const iframe = document.createElement("iframe");
-      iframe.src=`https://www.youtube.com/embed/${videoId}`;
-      iframe.frameBorder=0; iframe.allowFullscreen=true;
-      div.appendChild(iframe);
-    } else {
-      const img=document.createElement("img");
-      img.src=item.url;
-      div.appendChild(img);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Site de Vídeos e Imagens</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      margin: 0;
+      padding: 0;
     }
-
-    const title=document.createElement("div");
-    title.className="title"; title.textContent=item.title;
-    div.appendChild(title);
-
-    const cat=document.createElement("div");
-    cat.className="category"; cat.textContent=item.category;
-    div.appendChild(cat);
-
-    gallery.appendChild(div);
-  });
-}
-
-// Remove item
-function removeMedia(index){
-  if(confirm("Deseja realmente remover este conteúdo?")){
-    mediaList.splice(index,1);
-    renderGallery();
-  }
-}
-
-// Carregar JSON externo
-fetch("data.json")
-.then(res=>res.json())
-.then(data=>{
-  mediaList=data;
-  renderGallery();
-})
-.catch(err=>console.log("Erro carregando JSON",err));
-
-// Painel admin
-document.body.addEventListener("keydown",e=>{
-  if(e.ctrlKey && e.key==="e"){
-    const pass=prompt("Senha admin:");
-    if(pass===adminPassword){
-      document.getElementById("adminPanel").style.display="block";
-      alert("Painel ativado!");
-    } else alert("Senha incorreta!");
-  }
-});
-
-// Fechar painel
-function closeAdminPanel(){
-  document.getElementById("adminPanel").style.display="none";
-  alert("Painel fechado!");
-}
-
-function addMedia(){
-  const title=document.getElementById("mediaTitle").value.trim();
-  const category=document.getElementById("mediaCategory").value.trim();
-  const url=document.getElementById("mediaUrl").value.trim();
-  const type=document.getElementById("mediaType").value;
-  if(!title||!url){alert("Preencha título e URL!");return;}
-  mediaList.push({type,title,category,url});
-  renderGallery();
-  document.getElementById("mediaTitle").value="";
-  document.getElementById("mediaCategory").value="";
-  document.getElementById("mediaUrl").value="";
-}
-</script>
-
-</body>
-</html>
+    header {
+      background: #222;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+    }
+    #gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+    }
+    .item {
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+      position: relative;
+    }
+    .item iframe, .item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: red;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      padding: 5px 8px;
+    }
+    #adminPanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2
