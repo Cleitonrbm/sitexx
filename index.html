@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -30,10 +30,25 @@
       border-radius: 10px;
       padding: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      position: relative;
     }
     iframe, img {
       width: 100%;
       border-radius: 10px;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ff0000;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .remove-btn:hover {
+      background: #cc0000;
     }
     .admin-panel {
       display: none;
@@ -73,27 +88,53 @@
 
   <script>
     // --- CONFIGURAÇÃO ---
-    const adminPassword = "1234"; // <--- TROCA ESSA SENHA!!!
+    const adminPassword = "1234"; // <--- TROQUE ESSA SENHA
 
-    // Carrega a galeria do navegador
     const gallery = document.getElementById("gallery");
-    const savedMedia = JSON.parse(localStorage.getItem("mediaList")) || [];
+    let savedMedia = JSON.parse(localStorage.getItem("mediaList")) || [];
 
     function renderGallery() {
       gallery.innerHTML = "";
-      savedMedia.forEach(url => {
+      savedMedia.forEach((url, index) => {
         const div = document.createElement("div");
         div.className = "video";
+        
+        // Botão de remover
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-btn";
+        removeBtn.textContent = "X";
+        removeBtn.onclick = () => removeMedia(index);
+        div.appendChild(removeBtn);
+
+        // Conteúdo
         if (url.includes("youtube.com") || url.includes("youtu.be")) {
           const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
-          div.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+          const iframe = document.createElement("iframe");
+          iframe.src = `https://www.youtube.com/embed/${videoId}`;
+          iframe.frameBorder = 0;
+          iframe.allowFullscreen = true;
+          div.appendChild(iframe);
         } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-          div.innerHTML = `<img src="${url}" alt="Imagem">`;
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = "Imagem";
+          div.appendChild(img);
         } else {
-          div.innerHTML = `<p>Link inválido: ${url}</p>`;
+          const p = document.createElement("p");
+          p.textContent = `Link inválido: ${url}`;
+          div.appendChild(p);
         }
+
         gallery.appendChild(div);
       });
+    }
+
+    function removeMedia(index) {
+      if (confirm("Deseja realmente remover este conteúdo?")) {
+        savedMedia.splice(index, 1);
+        localStorage.setItem("mediaList", JSON.stringify(savedMedia));
+        renderGallery();
+      }
     }
 
     renderGallery();
@@ -104,7 +145,7 @@
         const pass = prompt("Senha de administrador:");
         if (pass === adminPassword) {
           document.getElementById("adminPanel").style.display = "block";
-          alert("Painel ativado! Agora você pode adicionar conteúdo.");
+          alert("Painel ativado! Agora você pode adicionar ou remover conteúdo.");
         } else {
           alert("Senha incorreta!");
         }
