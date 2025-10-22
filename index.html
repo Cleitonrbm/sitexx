@@ -1,169 +1,128 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MeuTube 😎</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0f0f0f;
-      color: white;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #202020;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
-    .video {
-      background: #181818;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      position: relative;
-    }
-    iframe, img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .remove-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: #ff0000;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    .remove-btn:hover {
-      background: #cc0000;
-    }
-    .admin-panel {
-      display: none;
-      padding: 20px;
-      background: #111;
-      border-top: 2px solid #333;
-    }
-    input, button {
-      margin: 5px;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      background: #ff0000;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #cc0000;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeuTube Final</title>
+<style>
+body { font-family: Arial; background:#111; color:white; margin:0; }
+header { background:#202020; padding:15px; text-align:center; font-size:24px; }
+.gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:15px; padding:20px; }
+.video { background:#181818; border-radius:10px; padding:10px; position:relative; box-shadow:0 0 10px rgba(0,0,0,0.3);}
+iframe,img { width:100%; border-radius:10px; }
+.title { margin:5px 0; font-weight:bold; text-align:center; }
+.category { font-size:12px; text-align:center; color:#aaa; }
+.admin-panel { display:none; padding:20px; background:#111; border-top:2px solid #333; }
+input,button,select { margin:5px; padding:10px; border:none; border-radius:5px; }
+button { background:#ff0000; color:white; cursor:pointer; }
+button:hover { background:#cc0000; }
+.remove-btn { position:absolute; top:5px; right:5px; background:#ff0000; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; }
+.remove-btn:hover { background:#cc0000; }
+</style>
 </head>
 <body>
 
-  <header>🔥 MeuTube - Meus Vídeos e Imagens 🔥</header>
+<header>🔥 MeuTube Final 🔥</header>
 
-  <!-- Galeria -->
-  <div class="gallery" id="gallery"></div>
+<div class="gallery" id="gallery"></div>
 
-  <!-- Painel Admin (oculto) -->
-  <div class="admin-panel" id="adminPanel">
-    <h2>Painel de Edição</h2>
-    <input type="text" id="mediaUrl" placeholder="Cole o link do vídeo ou imagem" />
-    <button onclick="addMedia()">Adicionar</button>
-  </div>
+<div class="admin-panel" id="adminPanel">
+<h2>Painel Admin</h2>
+<input type="text" id="mediaTitle" placeholder="Título">
+<input type="text" id="mediaCategory" placeholder="Categoria">
+<input type="text" id="mediaUrl" placeholder="URL do vídeo ou imagem">
+<select id="mediaType">
+  <option value="video">Vídeo</option>
+  <option value="image">Imagem</option>
+</select>
+<button onclick="addMedia()">Adicionar</button>
+</div>
 
-  <script>
-    // --- CONFIGURAÇÃO ---
-    const adminPassword = 1040; // <--- TROQUE ESSA SENHA
+<script>
+const adminPassword = "1234"; // TROQUE AQUI PELA SUA SENHA
+let mediaList = [];
 
-    const gallery = document.getElementById("gallery");
-    let savedMedia = JSON.parse(localStorage.getItem("mediaList")) || [];
+// Renderiza galeria
+function renderGallery(){
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+  mediaList.forEach((item,index)=>{
+    const div=document.createElement("div");
+    div.className="video";
 
-    function renderGallery() {
-      gallery.innerHTML = "";
-      savedMedia.forEach((url, index) => {
-        const div = document.createElement("div");
-        div.className = "video";
-        
-        // Botão de remover
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-btn";
-        removeBtn.textContent = "X";
-        removeBtn.onclick = () => removeMedia(index);
-        div.appendChild(removeBtn);
+    // Botão remover
+    const removeBtn=document.createElement("button");
+    removeBtn.className="remove-btn";
+    removeBtn.textContent="X";
+    removeBtn.onclick=()=>removeMedia(index);
+    div.appendChild(removeBtn);
 
-        // Conteúdo
-        if (url.includes("youtube.com") || url.includes("youtu.be")) {
-          const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
-          const iframe = document.createElement("iframe");
-          iframe.src = `https://www.youtube.com/embed/${videoId}`;
-          iframe.frameBorder = 0;
-          iframe.allowFullscreen = true;
-          div.appendChild(iframe);
-        } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-          const img = document.createElement("img");
-          img.src = url;
-          img.alt = "Imagem";
-          div.appendChild(img);
-        } else {
-          const p = document.createElement("p");
-          p.textContent = `Link inválido: ${url}`;
-          div.appendChild(p);
-        }
-
-        gallery.appendChild(div);
-      });
+    // Conteúdo
+    if(item.type==="video"){
+      const videoId = item.url.includes("youtube.com") ? item.url.split("v=")[1]?.split("&")[0] : item.url.split("/").pop();
+      const iframe = document.createElement("iframe");
+      iframe.src=`https://www.youtube.com/embed/${videoId}`;
+      iframe.frameBorder=0; iframe.allowFullscreen=true;
+      div.appendChild(iframe);
+    } else {
+      const img=document.createElement("img");
+      img.src=item.url;
+      div.appendChild(img);
     }
 
-    function removeMedia(index) {
-      if (confirm("Deseja realmente remover este conteúdo?")) {
-        savedMedia.splice(index, 1);
-        localStorage.setItem("mediaList", JSON.stringify(savedMedia));
-        renderGallery();
-      }
-    }
+    const title=document.createElement("div");
+    title.className="title"; title.textContent=item.title;
+    div.appendChild(title);
 
+    const cat=document.createElement("div");
+    cat.className="category"; cat.textContent=item.category;
+    div.appendChild(cat);
+
+    gallery.appendChild(div);
+  });
+}
+
+// Remove item
+function removeMedia(index){
+  if(confirm("Deseja realmente remover este conteúdo?")){
+    mediaList.splice(index,1);
     renderGallery();
+  }
+}
 
-    // --- LOGIN ADMIN ---
-    document.body.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.key === "e") { // Ctrl + E abre painel
-        const pass = prompt("Senha de administrador:");
-        if (pass === adminPassword) {
-          document.getElementById("adminPanel").style.display = "block";
-          alert("Painel ativado! Agora você pode adicionar ou remover conteúdo.");
-        } else {
-          alert("Senha incorreta!");
-        }
-      }
-    });
+// Carregar JSON externo
+fetch("data.json")
+.then(res=>res.json())
+.then(data=>{
+  mediaList=data;
+  renderGallery();
+})
+.catch(err=>console.log("Erro carregando JSON",err));
 
-    // --- Adiciona novo conteúdo ---
-    function addMedia() {
-      const url = document.getElementById("mediaUrl").value.trim();
-      if (!url) return alert("Cole o link primeiro!");
-      savedMedia.push(url);
-      localStorage.setItem("mediaList", JSON.stringify(savedMedia));
-      document.getElementById("mediaUrl").value = "";
-      renderGallery();
-    }
-  </script>
+// Painel admin
+document.body.addEventListener("keydown",e=>{
+  if(e.ctrlKey && e.key==="e"){
+    const pass=prompt("Senha admin:");
+    if(pass===adminPassword){
+      document.getElementById("adminPanel").style.display="block";
+      alert("Painel ativado!");
+    } else alert("Senha incorreta!");
+  }
+});
+
+function addMedia(){
+  const title=document.getElementById("mediaTitle").value.trim();
+  const category=document.getElementById("mediaCategory").value.trim();
+  const url=document.getElementById("mediaUrl").value.trim();
+  const type=document.getElementById("mediaType").value;
+  if(!title||!url){alert("Preencha título e URL!");return;}
+  mediaList.push({type,title,category,url});
+  renderGallery();
+  document.getElementById("mediaTitle").value="";
+  document.getElementById("mediaCategory").value="";
+  document.getElementById("mediaUrl").value="";
+}
+</script>
 
 </body>
 </html>
-
-
