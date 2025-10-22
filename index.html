@@ -4,34 +4,140 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MeuTube Final</title>
+
 <style>
-body { font-family: Arial; background:#111; color:white; margin:0; }
-header { background:#222; padding:15px; text-align:center; font-size:24px; }
-.gallery { display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:20px; }
-.item { background:#222; padding:10px; border-radius:10px; width:300px; text-align:center; position:relative; }
-.item iframe, .item img { width:100%; border-radius:8px; }
-.remove-btn { position:absolute; top:8px; right:8px; background:red; border:none; color:white; cursor:pointer; border-radius:5px; padding:5px 8px; }
-#adminPanel { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; padding:20px; border-radius:10px; display:none; flex-direction:column; gap:10px; z-index:10; width:300px; }
-#adminPanel input, #adminPanel select { width:100%; padding:5px; border:none; border-radius:5px; }
-#adminPanel button { padding:8px; border:none; border-radius:5px; background:#28a745; color:white; cursor:pointer; }
-#closePanel { background:#555; }
+/* ---------- ESTILO GERAL ---------- */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom right, #74ABE2, #5563DE);
+  color: #222;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* ---------- CABEÇALHO ---------- */
+header {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ---------- GALERIA ---------- */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px;
+}
+
+/* ---------- CADA ITEM ---------- */
+.item {
+  background: #fff;
+  color: #222;
+  padding: 15px;
+  border-radius: 12px;
+  width: 300px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.item iframe, .item img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* ---------- BOTÃO REMOVER ---------- */
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: red;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+
+/* ---------- PAINEL ADMIN ---------- */
+#adminPanel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#adminPanel h3 {
+  margin-top: 0;
+  text-align: center;
+  color: #333;
+}
+
+#adminPanel input, #adminPanel select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#adminPanel button {
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  background: #5563DE;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#adminPanel button:hover {
+  background: #3d4bb3;
+}
+
+#closePanel {
+  background: #999;
+}
 </style>
 </head>
+
 <body>
 <header>🔥 MeuTube Final 🔥</header>
+
 <div class="gallery" id="gallery"></div>
 
+<!-- PAINEL ADMIN -->
 <div id="adminPanel">
-<h3>Modo Edição</h3>
-<input type="text" id="title" placeholder="Título">
-<input type="text" id="category" placeholder="Categoria">
-<input type="text" id="url" placeholder="Link do vídeo ou imagem">
-<select id="type">
-<option value="video">Vídeo</option>
-<option value="image">Imagem</option>
-</select>
-<button id="addBtn">Adicionar</button>
-<button id="closePanel">Fechar painel</button>
+  <h3>Modo Edição</h3>
+  <input type="text" id="title" placeholder="Título">
+  <input type="text" id="category" placeholder="Categoria">
+  <input type="text" id="url" placeholder="Link do vídeo ou imagem">
+  <select id="type">
+    <option value="video">Vídeo</option>
+    <option value="image">Imagem</option>
+  </select>
+  <button id="addBtn">Adicionar</button>
+  <button id="closePanel">Fechar painel</button>
 </div>
 
 <script>
@@ -40,63 +146,73 @@ const gallery = document.getElementById('gallery');
 const adminPanel = document.getElementById('adminPanel');
 let mediaList = [];
 
-// Função para renderizar a galeria
+// ---------- RENDERIZAR GALERIA ----------
 function renderGallery() {
   gallery.innerHTML = "";
-  mediaList.forEach((item,index)=>{
-    const div=document.createElement('div');
-    div.className='item';
-    // botão remover
-    const removeBtn=document.createElement('button');
-    removeBtn.className='remove-btn';
-    removeBtn.textContent='X';
-    removeBtn.onclick=()=>{ mediaList.splice(index,1); renderGallery(); };
+  mediaList.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'item';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'X';
+    removeBtn.onclick = () => { mediaList.splice(index, 1); renderGallery(); };
     div.appendChild(removeBtn);
 
-    // conteúdo
     let url = item.url;
-    if(item.type==='video' && url.includes("youtube.com/watch?v=")) {
-      url = url.replace("watch?v=","embed/");
+    if (item.type === 'video' && url.includes("youtube.com/watch?v=")) {
+      url = url.replace("watch?v=", "embed/");
     }
-    if(item.type==='video') div.innerHTML+=`<h4>${item.title}</h4><p>${item.category}</p><iframe src="${url}" frameborder="0" allowfullscreen></iframe>`;
-    else div.innerHTML+=`<h4>${item.title}</h4><p>${item.category}</p><img src="${url}" alt="${item.title}">`;
+
+    if (item.type === 'video') {
+      div.innerHTML += `<h4>${item.title}</h4><p>${item.category}</p><iframe src="${url}" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+      div.innerHTML += `<h4>${item.title}</h4><p>${item.category}</p><img src="${url}" alt="${item.title}">`;
+    }
 
     gallery.appendChild(div);
   });
 }
 
-// Carrega data.json
+// ---------- CARREGAR ARQUIVO data.json ----------
 fetch("data.json")
-.then(res=>res.json())
-.then(data=>{
-  mediaList = data;
-  renderGallery();
-})
-.catch(err=>console.log("Erro carregando JSON",err));
+  .then(res => res.json())
+  .then(data => {
+    mediaList = data;
+    renderGallery();
+  })
+  .catch(err => console.log("Erro carregando JSON", err));
 
-// Painel admin
-document.body.addEventListener('keydown', e=>{
-  if(e.ctrlKey && e.key==='e'){
+// ---------- ATALHO PARA ABRIR PAINEL ----------
+document.body.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'e') {
     const pass = prompt("Digite a senha:");
-    if(pass===password) adminPanel.style.display='flex';
+    if (pass === password) adminPanel.style.display = 'flex';
     else alert("Senha incorreta!");
   }
 });
 
-document.getElementById('addBtn').onclick=()=>{
-  const title=document.getElementById('title').value.trim();
-  const category=document.getElementById('category').value.trim();
-  let url=document.getElementById('url').value.trim();
-  const type=document.getElementById('type').value;
-  if(!title||!url){alert("Preencha título e URL!"); return;}
-  mediaList.push({type,title,category,url});
+// ---------- ADICIONAR MÍDIA ----------
+document.getElementById('addBtn').onclick = () => {
+  const title = document.getElementById('title').value.trim();
+  const category = document.getElementById('category').value.trim();
+  let url = document.getElementById('url').value.trim();
+  const type = document.getElementById('type').value;
+
+  if (!title || !url) { alert("Preencha título e URL!"); return; }
+
+  mediaList.push({ type, title, category, url });
   renderGallery();
-  document.getElementById('title').value='';
-  document.getElementById('category').value='';
-  document.getElementById('url').value='';
+
+  document.getElementById('title').value = '';
+  document.getElementById('category').value = '';
+  document.getElementById('url').value = '';
 };
 
-document.getElementById('closePanel').onclick=()=>{ adminPanel.style.display='none'; };
+// ---------- FECHAR PAINEL ----------
+document.getElementById('closePanel').onclick = () => {
+  adminPanel.style.display = 'none';
+};
 </script>
 </body>
 </html>
