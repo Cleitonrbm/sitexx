@@ -1,70 +1,102 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meu Site de Vídeos e Imagens</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #eee;
-      margin: 0;
-      padding: 0;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeuTube Final</title>
+<style>
+body { font-family: Arial; background:#111; color:white; margin:0; }
+header { background:#222; padding:15px; text-align:center; font-size:24px; }
+.gallery { display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:20px; }
+.item { background:#222; padding:10px; border-radius:10px; width:300px; text-align:center; position:relative; }
+.item iframe, .item img { width:100%; border-radius:8px; }
+.remove-btn { position:absolute; top:8px; right:8px; background:red; border:none; color:white; cursor:pointer; border-radius:5px; padding:5px 8px; }
+#adminPanel { position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; padding:20px; border-radius:10px; display:none; flex-direction:column; gap:10px; z-index:10; width:300px; }
+#adminPanel input, #adminPanel select { width:100%; padding:5px; border:none; border-radius:5px; }
+#adminPanel button { padding:8px; border:none; border-radius:5px; background:#28a745; color:white; cursor:pointer; }
+#closePanel { background:#555; }
+</style>
+</head>
+<body>
+<header>🔥 MeuTube Final 🔥</header>
+<div class="gallery" id="gallery"></div>
+
+<div id="adminPanel">
+<h3>Modo Edição</h3>
+<input type="text" id="title" placeholder="Título">
+<input type="text" id="category" placeholder="Categoria">
+<input type="text" id="url" placeholder="Link do vídeo ou imagem">
+<select id="type">
+<option value="video">Vídeo</option>
+<option value="image">Imagem</option>
+</select>
+<button id="addBtn">Adicionar</button>
+<button id="closePanel">Fechar painel</button>
+</div>
+
+<script>
+const password = "1234";
+const gallery = document.getElementById('gallery');
+const adminPanel = document.getElementById('adminPanel');
+let mediaList = [];
+
+// Função para renderizar a galeria
+function renderGallery() {
+  gallery.innerHTML = "";
+  mediaList.forEach((item,index)=>{
+    const div=document.createElement('div');
+    div.className='item';
+    // botão remover
+    const removeBtn=document.createElement('button');
+    removeBtn.className='remove-btn';
+    removeBtn.textContent='X';
+    removeBtn.onclick=()=>{ mediaList.splice(index,1); renderGallery(); };
+    div.appendChild(removeBtn);
+
+    // conteúdo
+    let url = item.url;
+    if(item.type==='video' && url.includes("youtube.com/watch?v=")) {
+      url = url.replace("watch?v=","embed/");
     }
-    header {
-      background: #222;
-      color: #fff;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-    }
-    #gallery {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      padding: 20px;
-    }
-    .item {
-      background: #222;
-      padding: 10px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-      position: relative;
-    }
-    .item iframe, .item img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .remove-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: red;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-      padding: 5px 8px;
-    }
-    #adminPanel {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 10;
-      width: 300px;
-    }
-    #adminPanel input, #adminPanel select {
-      width: 100%;
-      padding: 5px;
-      border: none;
-      bor
+    if(item.type==='video') div.innerHTML+=`<h4>${item.title}</h4><p>${item.category}</p><iframe src="${url}" frameborder="0" allowfullscreen></iframe>`;
+    else div.innerHTML+=`<h4>${item.title}</h4><p>${item.category}</p><img src="${url}" alt="${item.title}">`;
+
+    gallery.appendChild(div);
+  });
+}
+
+// Carrega data.json
+fetch("data.json")
+.then(res=>res.json())
+.then(data=>{
+  mediaList = data;
+  renderGallery();
+})
+.catch(err=>console.log("Erro carregando JSON",err));
+
+// Painel admin
+document.body.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.key==='e'){
+    const pass = prompt("Digite a senha:");
+    if(pass===password) adminPanel.style.display='flex';
+    else alert("Senha incorreta!");
+  }
+});
+
+document.getElementById('addBtn').onclick=()=>{
+  const title=document.getElementById('title').value.trim();
+  const category=document.getElementById('category').value.trim();
+  let url=document.getElementById('url').value.trim();
+  const type=document.getElementById('type').value;
+  if(!title||!url){alert("Preencha título e URL!"); return;}
+  mediaList.push({type,title,category,url});
+  renderGallery();
+  document.getElementById('title').value='';
+  document.getElementById('category').value='';
+  document.getElementById('url').value='';
+};
+
+document.getElementById('closePanel').onclick=()=>{ adminPanel.style.display='none'; };
+</script>
+</body>
+</html>
