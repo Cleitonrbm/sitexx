@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeuTube 😎</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0f0f0f;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #202020;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+    .video {
+      background: #181818;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    iframe, img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .admin-panel {
+      display: none;
+      padding: 20px;
+      background: #111;
+      border-top: 2px solid #333;
+    }
+    input, button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      background: #ff0000;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #cc0000;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🔥 MeuTube - Meus Vídeos e Imagens 🔥</header>
+
+  <!-- Galeria -->
+  <div class="gallery" id="gallery"></div>
+
+  <!-- Painel Admin (oculto) -->
+  <div class="admin-panel" id="adminPanel">
+    <h2>Painel de Edição</h2>
+    <input type="text" id="mediaUrl" placeholder="Cole o link do vídeo ou imagem" />
+    <button onclick="addMedia()">Adicionar</button>
+  </div>
+
+  <script>
+    // --- CONFIGURAÇÃO ---
+    const adminPassword = "1234"; // <--- TROCA ESSA SENHA!!!
+
+    // Carrega a galeria do navegador
+    const gallery = document.getElementById("gallery");
+    const savedMedia = JSON.parse(localStorage.getItem("mediaList")) || [];
+
+    function renderGallery() {
+      gallery.innerHTML = "";
+      savedMedia.forEach(url => {
+        const div = document.createElement("div");
+        div.className = "video";
+        if (url.includes("youtube.com") || url.includes("youtu.be")) {
+          const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
+          div.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+          div.innerHTML = `<img src="${url}" alt="Imagem">`;
+        } else {
+          div.innerHTML = `<p>Link inválido: ${url}</p>`;
+        }
+        gallery.appendChild(div);
+      });
+    }
+
+    renderGallery();
+
+    // --- LOGIN ADMIN ---
+    document.body.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "e") { // Ctrl + E abre painel
+        const pass = prompt("Senha de administrador:");
+        if (pass === adminPassword) {
+          document.getElementById("adminPanel").style.display = "block";
+          alert("Painel ativado! Agora você pode adicionar conteúdo.");
+        } else {
+          alert("Senha incorreta!");
+        }
+      }
+    });
+
+    // --- Adiciona novo conteúdo ---
+    function addMedia() {
+      const url = document.getElementById("mediaUrl").value.trim();
+      if (!url) return alert("Cole o link primeiro!");
+      savedMedia.push(url);
+      localStorage.setItem("mediaList", JSON.stringify(savedMedia));
+      document.getElementById("mediaUrl").value = "";
+      renderGallery();
+    }
+  </script>
+
+</body>
+</html>
