@@ -3,11 +3,11 @@
     "type": "video",
     "title": "Vídeo de teste",
     "category": "Tutoriais",
-    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    "url": "https://www.youtube.com/embed/dQw4w9WgXcQ"
   },
   {
     "type": "image",
-    "title": "Imagem de teste",
+    "title": "Imagem teste",
     "category": "Fotos",
     "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
   }
