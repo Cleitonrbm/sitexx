@@ -18,6 +18,8 @@ button { background:#ff0000; color:white; cursor:pointer; }
 button:hover { background:#cc0000; }
 .remove-btn { position:absolute; top:5px; right:5px; background:#ff0000; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; }
 .remove-btn:hover { background:#cc0000; }
+.close-btn { background:#444; color:white; border:none; padding:10px 20px; border-radius:5px; margin-top:10px; cursor:pointer; }
+.close-btn:hover { background:#666; }
 </style>
 </head>
 <body>
@@ -36,6 +38,8 @@ button:hover { background:#cc0000; }
   <option value="image">Imagem</option>
 </select>
 <button onclick="addMedia()">Adicionar</button>
+<br>
+<button class="close-btn" onclick="closeAdminPanel()">Fechar painel</button>
 </div>
 
 <script>
@@ -109,6 +113,12 @@ document.body.addEventListener("keydown",e=>{
     } else alert("Senha incorreta!");
   }
 });
+
+// Fechar painel
+function closeAdminPanel(){
+  document.getElementById("adminPanel").style.display="none";
+  alert("Painel fechado!");
+}
 
 function addMedia(){
   const title=document.getElementById("mediaTitle").value.trim();
